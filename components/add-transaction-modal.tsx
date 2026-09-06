@@ -1,21 +1,19 @@
 import { useState } from 'react'
 import { Plus, X } from 'lucide-react'
-import { categories, type Transaction } from '@/lib/transactions'
+import { categories, combineDateWithCurrentTime, getTodayKey, type Transaction } from '@/lib/transactions'
 
 type AddTransactionModalProps = {
   onClose: () => void
-  onAdd: (transaction: Omit<Transaction, 'id' | 'date' | 'color'>) => void
+  onAdd: (transaction: Omit<Transaction, 'id' | 'color'>) => void
 }
 
-const emptyForm = { title: '', amount: '', category: 'อาหาร', type: 'expense' as Transaction['type'], note: '' }
-
 export function AddTransactionModal({ onClose, onAdd }: AddTransactionModalProps) {
-  const [form, setForm] = useState(emptyForm)
+  const [form, setForm] = useState(() => ({ title: '', amount: '', category: 'อาหาร', date: getTodayKey(), type: 'expense' as Transaction['type'], note: '' }))
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     if (!form.title || !form.amount) return
-    onAdd({ title: form.title, amount: Number(form.amount), category: form.category, type: form.type, note: form.note })
+    onAdd({ title: form.title, amount: Number(form.amount), category: form.category, date: combineDateWithCurrentTime(form.date), type: form.type, note: form.note })
   }
 
   return (
@@ -62,6 +60,10 @@ export function AddTransactionModal({ onClose, onAdd }: AddTransactionModalProps
             </select>
           </label>
         </div>
+        <label>
+          วันที่
+          <input type="date" value={form.date} onChange={(event) => setForm({ ...form, date: event.target.value })} required />
+        </label>
         <label>
           โน้ตเพิ่มเติม
           <textarea value={form.note} onChange={(event) => setForm({ ...form, note: event.target.value })} placeholder="รายละเอียดเล็กๆ น้อยๆ..." rows={3} />

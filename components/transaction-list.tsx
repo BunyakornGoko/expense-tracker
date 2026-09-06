@@ -1,5 +1,5 @@
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react'
-import { formatMoney, type Transaction } from '@/lib/transactions'
+import { formatDayLabel, formatMoney, formatTime, groupByDay, type Transaction } from '@/lib/transactions'
 
 type TransactionListProps = {
   transactions: Transaction[]
@@ -14,12 +14,27 @@ export function TransactionList({ transactions }: TransactionListProps) {
     )
   }
 
+  const dayGroups = groupByDay(transactions)
+
   return (
-    <section className="transactions-card">
-      {transactions.map((item) => (
-        <TransactionItem key={item.id} transaction={item} />
+    <>
+      {dayGroups.map((group) => (
+        <section className="day-group" key={group.dayKey}>
+          <div className="day-head">
+            <span className="day-label">{formatDayLabel(group.dayKey)}</span>
+            <span className="day-summary">
+              {group.income > 0 && <span className="day-income">+฿{formatMoney(group.income)}</span>}
+              {group.expense > 0 && <span className="day-expense">-฿{formatMoney(group.expense)}</span>}
+            </span>
+          </div>
+          <div className="transactions-card">
+            {group.transactions.map((item) => (
+              <TransactionItem key={item.id} transaction={item} />
+            ))}
+          </div>
+        </section>
       ))}
-    </section>
+    </>
   )
 }
 
@@ -32,7 +47,7 @@ function TransactionItem({ transaction }: { transaction: Transaction }) {
       </div>
       <div className="transaction-info">
         <strong>{transaction.title}</strong>
-        <span>{transaction.category} · {transaction.date}</span>
+        <span>{transaction.category} · {formatTime(transaction.date)}</span>
       </div>
       <div className="transaction-note">{transaction.note}</div>
       <strong className={isIncome ? 'amount income-text' : 'amount'}>
