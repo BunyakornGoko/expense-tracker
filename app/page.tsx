@@ -7,7 +7,17 @@ import { PageHeader } from '@/components/page-header'
 import { SummaryCards } from '@/components/summary-cards'
 import { RecentTransactions } from '@/components/recent-transactions'
 import { AddTransactionModal } from '@/components/add-transaction-modal'
-import { categories, getAvailableMonths, getMonthKey, getTodayKey, initialTransactions, type Transaction } from '@/lib/transactions'
+import {
+  categories,
+  getAvailableMonths,
+  getMonthKey,
+  getPreviousMonthKey,
+  getTodayKey,
+  initialTransactions,
+  percentChange,
+  sumByType,
+  type Transaction,
+} from '@/lib/transactions'
 
 export default function Page() {
   const [transactions, setTransactions] = useState(initialTransactions)
@@ -26,9 +36,19 @@ export default function Page() {
     () => (activeCategory === 'ทั้งหมด' ? monthTransactions : monthTransactions.filter((item) => item.category === activeCategory)),
     [activeCategory, monthTransactions],
   )
-  const income = monthTransactions.filter((item) => item.type === 'income').reduce((sum, item) => sum + item.amount, 0)
-  const expense = monthTransactions.filter((item) => item.type === 'expense').reduce((sum, item) => sum + item.amount, 0)
+  const { income, expense } = sumByType(monthTransactions)
   const balance = income - expense
+
+  const previousMonth = getPreviousMonthKey(activeMonth)
+  const previousMonthTransactions = useMemo(
+    () => transactions.filter((item) => getMonthKey(item.date) === previousMonth),
+    [transactions, previousMonth],
+  )
+  const { income: previousIncome, expense: previousExpense } = sumByType(previousMonthTransactions)
+  const previousBalance = previousIncome - previousExpense
+  const incomeChange = percentChange(income, previousIncome)
+  const expenseChange = percentChange(expense, previousExpense)
+  const balanceChange = percentChange(balance, previousBalance)
 
   function addTransaction(entry: Omit<Transaction, 'id' | 'color'>) {
     setTransactions((current) => [{ id: Date.now(), color: entry.type === 'income' ? 'mint' : 'peach', ...entry }, ...current])
@@ -53,7 +73,14 @@ export default function Page() {
           <Topbar monthKey={activeMonth} onOpenMenu={() => setMobileMenu(true)} />
           <div className="content-inner">
             <PageHeader onAddClick={() => setShowForm(true)} />
-            <SummaryCards balance={balance} income={income} expense={expense} />
+            <SummaryCards
+              balance={balance}
+              income={income}
+              expense={expense}
+              balanceChange={balanceChange}
+              incomeChange={incomeChange}
+              expenseChange={expenseChange}
+            />
             <RecentTransactions
               transactions={filteredTransactions}
               categories={categories}

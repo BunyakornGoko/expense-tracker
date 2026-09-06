@@ -58,6 +58,38 @@ export function getAvailableMonths(transactions: Transaction[]): string[] {
   return Array.from(new Set(transactions.map((item) => getMonthKey(item.date)))).sort((a, b) => b.localeCompare(a))
 }
 
+export function getPreviousMonthKey(monthKey: string): string {
+  const [year, month] = monthKey.split('-').map(Number)
+  const date = new Date(year, month - 2, 1)
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+}
+
+export function sumByType(transactions: Transaction[]): { income: number; expense: number } {
+  return {
+    income: transactions.filter((item) => item.type === 'income').reduce((sum, item) => sum + item.amount, 0),
+    expense: transactions.filter((item) => item.type === 'expense').reduce((sum, item) => sum + item.amount, 0),
+  }
+}
+
+// null means "no baseline last month", distinct from 0% (no change)
+export function percentChange(current: number, previous: number): number | null {
+  if (previous === 0) return current === 0 ? 0 : null
+  return ((current - previous) / previous) * 100
+}
+
+export function formatChangeNote(percent: number | null): string {
+  if (percent === null) return 'ไม่มีข้อมูลเดือนที่แล้ว'
+  if (percent === 0) return 'เท่ากับเดือนที่แล้ว'
+  const rounded = Math.abs(percent).toFixed(1)
+  return percent > 0 ? `↑ เพิ่มขึ้น ${rounded}% จากเดือนที่แล้ว` : `↓ ลดลง ${rounded}% จากเดือนที่แล้ว`
+}
+
+export function formatTrendChip(percent: number | null): string {
+  if (percent === null) return '—'
+  const rounded = Math.abs(percent).toFixed(1)
+  return percent >= 0 ? `↗ ${rounded}%` : `↘ ${rounded}%`
+}
+
 export type DayGroup = {
   dayKey: string
   transactions: Transaction[]

@@ -1,14 +1,17 @@
 import { ReactNode } from 'react'
 import { ArrowDownLeft, ArrowUpRight, CircleDollarSign } from 'lucide-react'
-import { formatMoney } from '@/lib/transactions'
+import { formatChangeNote, formatMoney, formatTrendChip } from '@/lib/transactions'
 
 type SummaryCardsProps = {
   balance: number
   income: number
   expense: number
+  balanceChange: number | null
+  incomeChange: number | null
+  expenseChange: number | null
 }
 
-export function SummaryCards({ balance, income, expense }: SummaryCardsProps) {
+export function SummaryCards({ balance, income, expense, balanceChange, incomeChange, expenseChange }: SummaryCardsProps) {
   return (
     <section className="summary-grid" aria-label="สรุปการเงิน">
       <div className="balance-card">
@@ -18,7 +21,7 @@ export function SummaryCards({ balance, income, expense }: SummaryCardsProps) {
         </div>
         <div className="balance-amount">฿{formatMoney(balance)}</div>
         <div className="balance-bottom">
-          <span className="trend">↗ 12.5%</span>
+          <span className="trend">{formatTrendChip(balanceChange)}</span>
           <span>จากเดือนที่แล้ว</span>
         </div>
         <div className="card-sparkles">✦</div>
@@ -28,14 +31,14 @@ export function SummaryCards({ balance, income, expense }: SummaryCardsProps) {
         icon={<ArrowDownLeft size={20} />}
         label="รายรับเดือนนี้"
         amount={income}
-        note="↑ เพิ่มขึ้น 8.2% จากเดือนที่แล้ว"
+        note={formatChangeNote(incomeChange)}
       />
       <StatCard
         className="expense-card"
         icon={<ArrowUpRight size={20} />}
         label="รายจ่ายเดือนนี้"
         amount={expense}
-        note="↓ ลดลง 4.5% จากเดือนที่แล้ว"
+        note={formatChangeNote(expenseChange)}
       />
     </section>
   )
