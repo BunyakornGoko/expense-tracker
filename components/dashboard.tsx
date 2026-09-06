@@ -28,7 +28,7 @@ export function Dashboard({ user, initialTransactions }: DashboardProps) {
   const [transactions, setTransactions] = useState(initialTransactions)
   const [activeCategory, setActiveCategory] = useState('ทั้งหมด')
   const [activeMonth, setActiveMonth] = useState(getMonthKey(getTodayKey()))
-  const [showForm, setShowForm] = useState(false)
+  const [formTarget, setFormTarget] = useState<Transaction | 'new' | null>(null)
   const [mobileMenu, setMobileMenu] = useState(false)
 
   const availableMonths = useMemo(() => getAvailableMonths(transactions), [transactions])
@@ -55,16 +55,22 @@ export function Dashboard({ user, initialTransactions }: DashboardProps) {
   const expenseChange = percentChange(expense, previousExpense)
   const balanceChange = percentChange(balance, previousBalance)
 
-  async function addTransaction(entry: Omit<Transaction, 'id' | 'color'>) {
-    const res = await fetch('/api/transactions', {
-      method: 'POST',
+  async function saveTransaction(entry: Omit<Transaction, 'id' | 'color'>, id?: string) {
+    const res = await fetch(id ? `/api/transactions/${id}` : '/api/transactions', {
+      method: id ? 'PATCH' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(entry),
     })
     if (!res.ok) return
     const { transaction } = await res.json()
-    setTransactions((current) => [transaction, ...current])
-    setShowForm(false)
+    setTransactions((current) => (id ? current.map((item) => (item.id === id ? transaction : item)) : [transaction, ...current]))
+    setFormTarget(null)
+  }
+
+  async function removeTransaction(id: string) {
+    const res = await fetch(`/api/transactions/${id}`, { method: 'DELETE' })
+    if (!res.ok) return
+    setTransactions((current) => current.filter((item) => item.id !== id))
   }
 
   // availableMonths is sorted newest-first; activeMonth (defaults to the real current month)
@@ -84,7 +90,7 @@ export function Dashboard({ user, initialTransactions }: DashboardProps) {
         <section className="content-area">
           <Topbar monthKey={activeMonth} onOpenMenu={() => setMobileMenu(true)} />
           <div className="content-inner">
-            <PageHeader onAddClick={() => setShowForm(true)} />
+            <PageHeader onAddClick={() => setFormTarget('new')} />
             <SummaryCards
               balance={balance}
               income={income}
@@ -103,12 +109,20 @@ export function Dashboard({ user, initialTransactions }: DashboardProps) {
               onNextMonth={goNewer}
               canPrevMonth={canGoOlder}
               canNextMonth={canGoNewer}
+              onEdit={setFormTarget}
+              onDelete={removeTransaction}
             />
           </div>
         </section>
       </div>
 
-      {showForm && <AddTransactionModal onClose={() => setShowForm(false)} onAdd={addTransaction} />}
+      {formTarget && (
+        <AddTransactionModal
+          onClose={() => setFormTarget(null)}
+          onSave={saveTransaction}
+          editing={formTarget === 'new' ? undefined : formTarget}
+        />
+      )}
     </main>
   )
 }

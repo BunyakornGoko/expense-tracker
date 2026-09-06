@@ -1,19 +1,27 @@
 import { useState } from 'react'
 import { Plus, X } from 'lucide-react'
-import { categories, combineDateWithCurrentTime, getTodayKey, type Transaction } from '@/lib/transactions'
+import { categories, combineDateWithCurrentTime, getDayKey, getTodayKey, type Transaction } from '@/lib/transactions'
 
 type AddTransactionModalProps = {
   onClose: () => void
-  onAdd: (transaction: Omit<Transaction, 'id' | 'color'>) => void
+  onSave: (entry: Omit<Transaction, 'id' | 'color'>, id?: string) => void
+  editing?: Transaction
 }
 
-export function AddTransactionModal({ onClose, onAdd }: AddTransactionModalProps) {
-  const [form, setForm] = useState(() => ({ title: '', amount: '', category: 'อาหาร', date: getTodayKey(), type: 'expense' as Transaction['type'], note: '' }))
+export function AddTransactionModal({ onClose, onSave, editing }: AddTransactionModalProps) {
+  const [form, setForm] = useState(() =>
+    editing
+      ? { title: editing.title, amount: String(editing.amount), category: editing.category, date: getDayKey(editing.date), type: editing.type, note: editing.note }
+      : { title: '', amount: '', category: 'อาหาร', date: getTodayKey(), type: 'expense' as Transaction['type'], note: '' },
+  )
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     if (!form.title || !form.amount) return
-    onAdd({ title: form.title, amount: Number(form.amount), category: form.category, date: combineDateWithCurrentTime(form.date), type: form.type, note: form.note })
+    // keep the original time-of-day on edit, only the date input changes the day
+    const date =
+      editing && getDayKey(editing.date) === form.date ? editing.date : combineDateWithCurrentTime(form.date)
+    onSave({ title: form.title, amount: Number(form.amount), category: form.category, date, type: form.type, note: form.note }, editing?.id)
   }
 
   return (
@@ -27,8 +35,8 @@ export function AddTransactionModal({ onClose, onAdd }: AddTransactionModalProps
       <form className="add-modal" onSubmit={handleSubmit}>
         <div className="modal-head">
           <div>
-            <p className="eyebrow">NEW ENTRY</p>
-            <h2>เพิ่มรายการใหม่</h2>
+            <p className="eyebrow">{editing ? 'EDIT ENTRY' : 'NEW ENTRY'}</p>
+            <h2>{editing ? 'แก้ไขรายการ' : 'เพิ่มรายการใหม่'}</h2>
           </div>
           <button type="button" className="icon-button" onClick={onClose} aria-label="ปิด">
             <X size={19} />
@@ -69,7 +77,7 @@ export function AddTransactionModal({ onClose, onAdd }: AddTransactionModalProps
           <textarea value={form.note} onChange={(event) => setForm({ ...form, note: event.target.value })} placeholder="รายละเอียดเล็กๆ น้อยๆ..." rows={3} />
         </label>
         <button className="primary-button full-button" type="submit">
-          <Plus size={18} /> บันทึกรายการ
+          <Plus size={18} /> {editing ? 'บันทึกการแก้ไข' : 'บันทึกรายการ'}
         </button>
       </form>
     </div>

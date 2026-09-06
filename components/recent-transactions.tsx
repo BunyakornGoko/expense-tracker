@@ -13,6 +13,8 @@ type RecentTransactionsProps = {
   onNextMonth: () => void
   canPrevMonth: boolean
   canNextMonth: boolean
+  onEdit: (transaction: Transaction) => void
+  onDelete: (id: string) => void
 }
 
 export function RecentTransactions({
@@ -25,6 +27,8 @@ export function RecentTransactions({
   onNextMonth,
   canPrevMonth,
   canNextMonth,
+  onEdit,
+  onDelete,
 }: RecentTransactionsProps) {
   return (
     <>
@@ -36,7 +40,7 @@ export function RecentTransactions({
         <MonthNav monthKey={monthKey} onPrev={onPrevMonth} onNext={onNextMonth} canPrev={canPrevMonth} canNext={canNextMonth} />
       </div>
       <CategoryFilter categories={categories} active={activeCategory} onSelect={onSelectCategory} />
-      <TransactionList transactions={transactions} />
+      <TransactionList transactions={transactions} onEdit={onEdit} onDelete={onDelete} />
     </>
   )
 }

@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb'
 import { getDb } from '@/lib/mongodb'
 import type { Transaction } from '@/lib/transactions'
 
@@ -26,4 +27,29 @@ export async function addTransaction(userId: string, entry: Omit<Transaction, 'i
   const color = entry.type === 'income' ? 'mint' : 'peach'
   const result = await collection.insertOne({ ...entry, color, userId })
   return { id: result.insertedId.toString(), ...entry, color }
+}
+
+export async function updateTransaction(
+  userId: string,
+  id: string,
+  entry: Omit<Transaction, 'id' | 'color'>,
+): Promise<Transaction | null> {
+  if (!ObjectId.isValid(id)) return null
+  const collection = await transactionsCollection()
+  const color = entry.type === 'income' ? 'mint' : 'peach'
+  const updated = await collection.findOneAndUpdate(
+    { _id: new ObjectId(id), userId },
+    { $set: { ...entry, color } },
+    { returnDocument: 'after' },
+  )
+  if (!updated) return null
+  const { _id, userId: _userId, ...rest } = updated
+  return { id: _id.toString(), ...rest }
+}
+
+export async function deleteTransaction(userId: string, id: string): Promise<boolean> {
+  if (!ObjectId.isValid(id)) return false
+  const collection = await transactionsCollection()
+  const result = await collection.deleteOne({ _id: new ObjectId(id), userId })
+  return result.deletedCount > 0
 }
