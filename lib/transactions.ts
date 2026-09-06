@@ -41,6 +41,10 @@ export function formatFullDateLabel(dayKey: string): string {
   return new Date(dayKey).toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 }
 
+export function formatDateFieldLabel(dayKey: string): string {
+  return new Date(dayKey).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
 export function combineDateWithCurrentTime(dateKey: string): string {
   const now = new Date()
   const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:00`

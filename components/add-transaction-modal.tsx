@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Plus, X } from 'lucide-react'
-import { categories, combineDateWithCurrentTime, getDayKey, getTodayKey, type Transaction } from '@/lib/transactions'
+import { categories, combineDateWithCurrentTime, formatDateFieldLabel, getDayKey, getTodayKey, type Transaction } from '@/lib/transactions'
 
 type AddTransactionModalProps = {
   onClose: () => void
@@ -70,7 +70,10 @@ export function AddTransactionModal({ onClose, onSave, editing }: AddTransaction
         </div>
         <label>
           วันที่
-          <input type="date" value={form.date} onChange={(event) => setForm({ ...form, date: event.target.value })} required />
+          <div className="date-field">
+            <input type="date" value={form.date} onChange={(event) => setForm({ ...form, date: event.target.value })} required />
+            <span className="date-display">{formatDateFieldLabel(form.date)}</span>
+          </div>
         </label>
         <label>
           โน้ตเพิ่มเติม
