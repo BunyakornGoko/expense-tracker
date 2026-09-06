@@ -1,5 +1,5 @@
 export type Transaction = {
-  id: number
+  id: string
   title: string
   category: string
   date: string // ISO datetime
@@ -10,8 +10,6 @@ export type Transaction = {
 }
 
 export const getTodayKey = () => new Date().toISOString().slice(0, 10)
-
-export const initialTransactions: Transaction[] = []
 
 export const categories = ['ทั้งหมด', 'อาหาร', 'เดินทาง', 'บันเทิง', 'เงินเดือน', 'ช้อปปิ้ง']
 
