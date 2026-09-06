@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, X } from 'lucide-react'
+import { Calendar, Plus, X } from 'lucide-react'
 import { categories, combineDateWithCurrentTime, formatDateFieldLabel, getDayKey, getTodayKey, type Transaction } from '@/lib/transactions'
 
 type AddTransactionModalProps = {
@@ -72,7 +72,10 @@ export function AddTransactionModal({ onClose, onSave, editing }: AddTransaction
           วันที่
           <div className="date-field">
             <input type="date" value={form.date} onChange={(event) => setForm({ ...form, date: event.target.value })} required />
-            <span className="date-display">{formatDateFieldLabel(form.date)}</span>
+            <span className="date-display">
+              {formatDateFieldLabel(form.date)}
+              <Calendar size={17} className="date-icon" />
+            </span>
           </div>
         </label>
         <label>
