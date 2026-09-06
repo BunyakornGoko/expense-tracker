@@ -18,11 +18,12 @@ export function RegisterForm() {
     setError('')
     setLoading(true)
     const result = await apiPost('/api/auth/register', { name, email, password })
-    setLoading(false)
     if (!result.ok) {
+      setLoading(false)
       setError(result.error)
       return
     }
+    // keep the button in its loading state until the redirect actually happens
     router.push('/')
     router.refresh()
   }

@@ -17,11 +17,12 @@ export function LoginForm() {
     setError('')
     setLoading(true)
     const result = await apiPost('/api/auth/login', { email, password })
-    setLoading(false)
     if (!result.ok) {
+      setLoading(false)
       setError(result.error)
       return
     }
+    // keep the button in its loading state until the redirect actually happens
     router.push('/')
     router.refresh()
   }
