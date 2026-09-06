@@ -11,12 +11,7 @@ export type Transaction = {
 
 export const getTodayKey = () => new Date().toISOString().slice(0, 10)
 
-export const initialTransactions: Transaction[] = [
-  { id: 1, title: 'เงินเดือนประจำเดือน', category: 'เงินเดือน', date: '2026-06-18T09:30:00', amount: 32000, type: 'income', note: 'เงินเดือนเดือนมิถุนายน', color: 'mint' },
-  { id: 2, title: 'ค่าอาหารกลางวัน', category: 'อาหาร', date: '2026-06-18T12:45:00', amount: 180, type: 'expense', note: 'ข้าวหน้าเนื้อร้านโปรด', color: 'peach' },
-  { id: 3, title: 'ค่าสมาชิก Netflix', category: 'บันเทิง', date: '2026-06-17T20:10:00', amount: 419, type: 'expense', note: 'แพ็กเกจ Standard', color: 'lavender' },
-  { id: 4, title: 'ค่าเดินทาง BTS', category: 'เดินทาง', date: '2026-06-17T08:20:00', amount: 92, type: 'expense', note: 'ไปทำงาน', color: 'yellow' },
-]
+export const initialTransactions: Transaction[] = []
 
 export const categories = ['ทั้งหมด', 'อาหาร', 'เดินทาง', 'บันเทิง', 'เงินเดือน', 'ช้อปปิ้ง']
 
