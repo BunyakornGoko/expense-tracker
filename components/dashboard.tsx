@@ -18,6 +18,7 @@ import {
   type Transaction,
 } from '@/lib/transactions'
 import type { PublicUser } from '@/lib/users'
+import { apiDelete, apiPatch, apiPost } from '@/lib/api-client'
 
 type DashboardProps = {
   user: PublicUser
@@ -56,20 +57,18 @@ export function Dashboard({ user, initialTransactions }: DashboardProps) {
   const balanceChange = percentChange(balance, previousBalance)
 
   async function saveTransaction(entry: Omit<Transaction, 'id' | 'color'>, id?: string) {
-    const res = await fetch(id ? `/api/transactions/${id}` : '/api/transactions', {
-      method: id ? 'PATCH' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(entry),
-    })
-    if (!res.ok) return
-    const { transaction } = await res.json()
+    const result = id
+      ? await apiPatch<{ transaction: Transaction }>(`/api/transactions/${id}`, entry)
+      : await apiPost<{ transaction: Transaction }>('/api/transactions', entry)
+    if (!result.ok) return
+    const { transaction } = result.data
     setTransactions((current) => (id ? current.map((item) => (item.id === id ? transaction : item)) : [transaction, ...current]))
     setFormTarget(null)
   }
 
   async function removeTransaction(id: string) {
-    const res = await fetch(`/api/transactions/${id}`, { method: 'DELETE' })
-    if (!res.ok) return
+    const result = await apiDelete(`/api/transactions/${id}`)
+    if (!result.ok) return
     setTransactions((current) => current.filter((item) => item.id !== id))
   }
 

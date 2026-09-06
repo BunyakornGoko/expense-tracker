@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { UserPlus } from 'lucide-react'
+import { apiPost } from '@/lib/api-client'
 
 export function RegisterForm() {
   const router = useRouter()
@@ -16,15 +17,10 @@ export function RegisterForm() {
     event.preventDefault()
     setError('')
     setLoading(true)
-    const res = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
-    })
+    const result = await apiPost('/api/auth/register', { name, email, password })
     setLoading(false)
-    if (!res.ok) {
-      const { error } = await res.json()
-      setError(error)
+    if (!result.ok) {
+      setError(result.error)
       return
     }
     router.push('/')
@@ -49,7 +45,7 @@ export function RegisterForm() {
         <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required />
       </label>
       <button className="primary-button full-button" type="submit" disabled={loading}>
-        <UserPlus size={18} /> สมัครสมาชิก
+        <UserPlus size={18} /> {loading ? 'กำลังสมัคร...' : 'สมัครสมาชิก'}
       </button>
       <p className="auth-switch">
         มีบัญชีแล้ว? <a href="/login">เข้าสู่ระบบ</a>
