@@ -24,7 +24,9 @@ export function SummaryCards({ balance, income, expense, balanceChange, incomeCh
           <span className="trend">{formatTrendChip(balanceChange)}</span>
           <span>จากเดือนที่แล้ว</span>
         </div>
-        <div className="card-sparkles">✦</div>
+        <div className="card-sparkles">
+          <img src="/Kuromi.png" alt="" aria-hidden="true" />
+        </div>
       </div>
       <StatCard
         className="income-card"

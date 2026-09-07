@@ -15,7 +15,10 @@ export function TransactionList({ transactions, onEdit, onDelete }: TransactionL
   if (!transactions.length) {
     return (
       <section className="transactions-card">
-        <div className="empty-state">ยังไม่มีรายการในหมวดนี้</div>
+        <div className="empty-state">
+          <img src="/Kuromi%20Sticker%20Collection.png" alt="" aria-hidden="true" />
+          <span>ยังไม่มีรายการในหมวดนี้</span>
+        </div>
       </section>
     )
   }

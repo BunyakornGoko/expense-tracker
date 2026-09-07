@@ -39,6 +39,10 @@ export function Sidebar({ mobileOpen, onClose, userName }: SidebarProps) {
         </div>
       </nav>
       <div className="sidebar-footer-user">
+        <div className="sidebar-mascot">
+          <img src="/Kuromi%20List.webp" alt="Kuromi mascot" />
+          <span>สู้ๆ นะ วันนี้ก็ประหยัดได้!</span>
+        </div>
         <span className="user-name">{userName}</span>
         <button className="nav-item" onClick={handleLogout}>
           <LogOut size={16} /> ออกจากระบบ
