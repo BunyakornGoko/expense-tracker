@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   title: 'Kuromi Money Diary | ภาพรวมการเงิน',
   description: 'จัดการรายรับรายจ่ายของคุณในสไตล์ Kuromi',
   generator: 'v0.app',
+  icons: '/Kuromi%20List.webp',
 }
 
 export const viewport: Viewport = {
