@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { Plus, ScanLine } from 'lucide-react'
 import { formatFullDateLabel, getTodayKey } from '@/lib/transactions'
 
@@ -9,6 +9,7 @@ type PageHeaderProps = {
 export function PageHeader({ onAddClick }: PageHeaderProps) {
   const formRef = useRef<HTMLFormElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [importing, setImporting] = useState(false)
 
   return (
     <div className="page-heading">
@@ -25,11 +26,15 @@ export function PageHeader({ onAddClick }: PageHeaderProps) {
             name="image"
             accept="image/*"
             hidden
-            onChange={() => formRef.current?.submit()}
+            onChange={(event) => {
+              if (!event.target.files?.[0]) return
+              setImporting(true)
+              formRef.current?.submit()
+            }}
           />
         </form>
-        <button type="button" className="secondary-button" onClick={() => fileInputRef.current?.click()}>
-          <ScanLine size={18} /> นำเข้าจากสลิป
+        <button type="button" className="secondary-button" onClick={() => fileInputRef.current?.click()} disabled={importing}>
+          <ScanLine size={18} /> {importing ? 'กำลังอ่านสลิป...' : 'นำเข้าจากสลิป'}
         </button>
         <button className="primary-button" onClick={onAddClick}>
           <Plus size={19} /> เพิ่มรายการ
