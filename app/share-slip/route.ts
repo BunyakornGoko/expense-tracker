@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createWorker } from 'tesseract.js'
+import sharp from 'sharp'
 import { getSession } from '@/lib/auth-cookies'
 import { addTransaction } from '@/lib/transactions-store'
 import { parseSlipText } from '@/lib/parse-slip'
@@ -16,7 +17,10 @@ export async function POST(request: Request) {
     return NextResponse.redirect(new URL('/?slip=missing', request.url), 303)
   }
 
-  const buffer = Buffer.from(await file.arrayBuffer())
+  const rawBuffer = Buffer.from(await file.arrayBuffer())
+  // slips are often low-contrast pastel gradients; grayscale + contrast normalize measurably
+  // improves OCR accuracy on them (verified against real slip screenshots)
+  const buffer = await sharp(rawBuffer).resize({ width: 1600, withoutEnlargement: true }).grayscale().normalize().sharpen().toBuffer()
   const worker = await createWorker('tha+eng', undefined, { cachePath: '/tmp' })
   const { data } = await worker.recognize(buffer)
   await worker.terminate()
