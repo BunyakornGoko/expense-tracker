@@ -12,5 +12,13 @@ export default function manifest(): MetadataRoute.Manifest {
     icons: [
       { src: '/Kuromi.png', sizes: '240x240', type: 'image/png' }
     ],
+    share_target: {
+      action: '/share-slip',
+      method: 'POST',
+      enctype: 'multipart/form-data',
+      params: {
+        files: [{ name: 'image', accept: ['image/*'] }],
+      },
+    },
   }
 }

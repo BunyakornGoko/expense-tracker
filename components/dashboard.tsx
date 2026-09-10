@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Sidebar } from '@/components/sidebar'
 import { Topbar } from '@/components/topbar'
 import { PageHeader } from '@/components/page-header'
@@ -31,6 +31,26 @@ export function Dashboard({ user, initialTransactions }: DashboardProps) {
   const [activeMonth, setActiveMonth] = useState(getMonthKey(getTodayKey()))
   const [formTarget, setFormTarget] = useState<Transaction | 'new' | null>(null)
   const [mobileMenu, setMobileMenu] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const slip = params.get('slip')
+    if (!slip) return
+    const messages: Record<string, string> = {
+      saved: 'บันทึกรายการจากสลิปแล้ว',
+      failed: 'อ่านสลิปไม่สำเร็จ กรอกรายการเองได้เลย',
+      missing: 'ไม่พบรูปสลิปที่แชร์มา',
+    }
+    setToast(messages[slip] ?? null)
+    window.history.replaceState(null, '', window.location.pathname)
+  }, [])
+
+  useEffect(() => {
+    if (!toast) return
+    const id = setTimeout(() => setToast(null), 4000)
+    return () => clearTimeout(id)
+  }, [toast])
 
   const availableMonths = useMemo(() => getAvailableMonths(transactions), [transactions])
 
@@ -122,6 +142,7 @@ export function Dashboard({ user, initialTransactions }: DashboardProps) {
           editing={formTarget === 'new' ? undefined : formTarget}
         />
       )}
+      {toast && <div className="toast">{toast}</div>}
     </main>
   )
 }
