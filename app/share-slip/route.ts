@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server'
 import { createWorker, type Worker } from 'tesseract.js'
 import sharp from 'sharp'
 import { getSession } from '@/lib/auth-cookies'
@@ -17,14 +16,22 @@ function getWorker() {
   return workerPromise
 }
 
+// Behind the Caddy reverse proxy, request.url can resolve to the container's own hostname
+// instead of the public domain, so NextResponse.redirect(new URL(path, request.url)) sends the
+// browser to an address it can't reach. A relative Location header sidesteps that entirely —
+// browsers resolve it against the page's own address bar, not anything the server guesses.
+function redirectTo(path: string) {
+  return new Response(null, { status: 303, headers: { Location: path } })
+}
+
 export async function POST(request: Request) {
   const user = await getSession()
-  if (!user) return NextResponse.redirect(new URL('/login', request.url), 303)
+  if (!user) return redirectTo('/login')
 
   const formData = await request.formData()
   const file = formData.get('image')
   if (!(file instanceof File)) {
-    return NextResponse.redirect(new URL('/?slip=missing', request.url), 303)
+    return redirectTo('/?slip=missing')
   }
 
   try {
@@ -37,7 +44,7 @@ export async function POST(request: Request) {
 
     const parsed = parseSlipText(data.text)
     if (!parsed) {
-      return NextResponse.redirect(new URL('/?slip=failed', request.url), 303)
+      return redirectTo('/?slip=failed')
     }
 
     await addTransaction(user.id, {
@@ -49,10 +56,10 @@ export async function POST(request: Request) {
       note: 'นำเข้าจากสลิป',
     })
 
-    return NextResponse.redirect(new URL('/?slip=saved', request.url), 303)
+    return redirectTo('/?slip=saved')
   } catch (error) {
     console.error('share-slip failed', error)
     workerPromise = null // drop a possibly-broken worker so the next request starts fresh
-    return NextResponse.redirect(new URL('/?slip=failed', request.url), 303)
+    return redirectTo('/?slip=failed')
   }
 }
