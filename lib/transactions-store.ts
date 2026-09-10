@@ -1,8 +1,8 @@
-import { ObjectId } from 'mongodb'
+import { Double, ObjectId } from 'mongodb'
 import { getDb } from '@/lib/mongodb'
 import type { Transaction } from '@/lib/transactions'
 
-type TransactionDoc = Omit<Transaction, 'id'> & { userId: string }
+type TransactionDoc = Omit<Transaction, 'id' | 'amount'> & { amount: number | Double; userId: string }
 
 let indexEnsured = false
 
@@ -19,13 +19,13 @@ async function transactionsCollection() {
 export async function getTransactions(userId: string): Promise<Transaction[]> {
   const collection = await transactionsCollection()
   const docs = await collection.find({ userId }).sort({ date: -1 }).toArray()
-  return docs.map(({ _id, userId: _userId, ...rest }) => ({ id: _id.toString(), ...rest }))
+  return docs.map(({ _id, userId: _userId, amount, ...rest }) => ({ id: _id.toString(), amount: Number(amount), ...rest }))
 }
 
 export async function addTransaction(userId: string, entry: Omit<Transaction, 'id' | 'color'>): Promise<Transaction> {
   const collection = await transactionsCollection()
   const color = entry.type === 'income' ? 'mint' : 'peach'
-  const result = await collection.insertOne({ ...entry, color, userId })
+  const result = await collection.insertOne({ ...entry, amount: new Double(entry.amount), color, userId })
   return { id: result.insertedId.toString(), ...entry, color }
 }
 
@@ -39,12 +39,12 @@ export async function updateTransaction(
   const color = entry.type === 'income' ? 'mint' : 'peach'
   const updated = await collection.findOneAndUpdate(
     { _id: new ObjectId(id), userId },
-    { $set: { ...entry, color } },
+    { $set: { ...entry, amount: new Double(entry.amount), color } },
     { returnDocument: 'after' },
   )
   if (!updated) return null
-  const { _id, userId: _userId, ...rest } = updated
-  return { id: _id.toString(), ...rest }
+  const { _id, userId: _userId, amount, ...rest } = updated
+  return { id: _id.toString(), amount: Number(amount), ...rest }
 }
 
 export async function deleteTransaction(userId: string, id: string): Promise<boolean> {

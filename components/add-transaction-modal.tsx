@@ -57,7 +57,7 @@ export function AddTransactionModal({ onClose, onSave, editing }: AddTransaction
         <div className="form-row">
           <label>
             จำนวนเงิน
-            <input type="number" min="1" value={form.amount} onChange={(event) => setForm({ ...form, amount: event.target.value })} placeholder="0.00" required />
+            <input type="number" min="0.01" step="0.01" value={form.amount} onChange={(event) => setForm({ ...form, amount: event.target.value })} placeholder="0.00" required />
           </label>
           <label>
             หมวดหมู่
