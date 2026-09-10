@@ -18,6 +18,11 @@ RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Next's standalone output only bundles files it can statically trace, which misses
+# tesseract.js's worker-script (loaded via worker_threads at runtime, not require()/import) and
+# its own transitive deps (bmp-js, zlibjs, node-fetch, ...). Overwrite with the real, complete
+# node_modules from `pnpm install` instead of chasing each missing module one at a time.
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
 USER nextjs
 EXPOSE 3000
 CMD ["node", "server.js"]
