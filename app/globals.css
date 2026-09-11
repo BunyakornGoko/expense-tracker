@@ -38,6 +38,10 @@
   --muted: #8e8799;
 }
 
+.loading-shell { min-height: 100vh; display: grid; place-items: center; background: var(--background); }
+.spinner { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--border); border-top-color: var(--purple); animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
 * { box-sizing: border-box; }
 html { background: var(--background); }
 body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font-body); }

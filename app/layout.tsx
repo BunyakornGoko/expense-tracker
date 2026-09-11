@@ -17,6 +17,7 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: 'default',
     title: 'Kuromi Diary',
+    startupImage: '/apple-splash.png',
   },
 }
 
